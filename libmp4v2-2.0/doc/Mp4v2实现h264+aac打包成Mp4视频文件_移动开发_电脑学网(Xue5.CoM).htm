@@ -1,0 +1,541 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd">
+<!-- saved from url=(0045)http://www.xue5.com/Mobile/Mobile/695553.html -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=GBK"><script src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/main.js" async="" charset="utf8" mod_name="tkapi-main"></script><script charset="gbk" async="" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/tkapi.js"></script>
+<title>Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)</title>
+
+<meta name="keywords" content="Mp4v2实现h264+aac打包成Mp4视频文件移动应用开发,移动开发">
+<meta name="description" content="使用mp4v2实现录制mp4视频，需要准备如下信息：1、获取mp4v2源码并编译成库文件，对于mp4v2的编译可以看前面的文章android编译mp4v22.0.0生成动态库；2、获取h264数据中的sps和pps数据，如果不会的话可以查看前面的文章点击打开链接；3、获取音频解码信息，在调用MP4SetTrackESConfiguration使用，具体的获取方式一种通过faac获取，方法faacE移动开发">
+<link rel="icon" href="http://www.xue5.com/favicon.ico" type="image/x-icon">
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7">
+<link href="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/Xue5Server.css" type="text/css" rel="stylesheet">
+<script language="JavaScript">
+<!--
+//改变图片大小
+function resizepic(thispic)
+{
+}
+//无级缩放图片大小
+function bbimg(o)
+{
+}
+-->
+</script>
+<script language="JavaScript">
+<!--
+//告诉好友
+function copyToClipBoard(){
+   var clipBoardContent=''; 
+   clipBoardContent+='Mp4v2实现h264+aac打包成Mp4视频文件';
+   clipBoardContent+=window.location;
+   window.clipboardData.setData("Text",clipBoardContent);
+   alert("文章地址复制成功，粘贴到QQ/MSN上就可以推荐给好友看咯");
+  }
+-->
+</script>
+<link href="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/bdsstyle.css" rel="stylesheet" type="text/css"><script src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/logger.js"></script><script charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/t.js"></script><style>html #hm_t_2982.hm-t-container,html #hm_t_2982.hm-t-container * {box-sizing:content-box;margin:0;padding:0;float:none;clear:none;overflow:hidden;white-space:nowrap;word-wrap:normal;border:0;background:none;width:auto;height:auto;max-width:none;min-width:none;max-height:none;min-height:none;border-radius:0;box-shadow:none;transition:none;}html #hm_t_2982 .hm-t-list {position:relative;*zoom:1;}html #hm_t_2982 .hm-t-list-txt {padding:12px 12px 0 0;}html #hm_t_2982 .hm-t-item {display:list-item;text-align:left;text-overflow:ellipsis;float:left;list-style:none!important;}html #hm_t_2982 .hm-t-item-img {margin-top:12px;}html #hm_t_2982 .hm-t-img,html #hm_t_2982 .hm-t-img-title {display:block;margin:auto;}html #hm_t_2982 .hm-t-img {border:1px solid #cedbeb;}html #hm_t_2982 .hm-t-img img {border:none;}html #hm_t_2982 .hm-t-img-title {white-space:normal;margin-top:6px;}html #hm_t_2982 .hm-t-txt-wrapper {padding-left:20px;text-overflow:ellipsis;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAyCAMAAABMDIr8AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyRpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIE1hY2ludG9zaCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpCNEMwQzIxMzExRjAxMUUzODhDMkE2MzkxMTc1ODQyMiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpCNEMwQzIxNDExRjAxMUUzODhDMkE2MzkxMTc1ODQyMiI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkI0QzBDMjExMTFGMDExRTM4OEMyQTYzOTExNzU4NDIyIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkI0QzBDMjEyMTFGMDExRTM4OEMyQTYzOTExNzU4NDIyIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+qPUs2wAAABtQTFRFDEqCAEF8DUqCwM7dwM3dDkuDDUuDAEB7////w7r9TAAAAAl0Uk5T//////////8AU094EgAAACtJREFUeNpiYAcCBgjBCCQYgSQDBxAML4KZlZWFAehNNhDBwMDCxMQMEGAA7HcF3baHdjUAAAAASUVORK5CYII=) no-repeat;*background-image:url(http://ecma.bdimg.com/holmes/t-list-styles.png);}html #hm_t_2982 .hm-t-footer {position:relative;height:22px;}html #hm_t_2982 .hm-t-footer a {position:absolute;top:0;right:12px;font-family:arial,sans-serif;font-size:12px;color:#aeaeae;text-decoration:none;line-height:22px;}html {_background-image:url(about:blank);_background-attachment:fixed;}html #hm_t_2982.hm-t-container {overflow:visible;position:fixed;z-index:99999;border:1px solid #ccc;_position:absolute;_top:expression(eval(document.documentElement.scrollTop+document.documentElement.clientHeight-this.offsetHeight-(parseInt(this.currentStyle.marginTop,10)||0)-(parseInt(this.currentStyle.marginBottom,10)||0)));}html #hm_t_2982 .hm-t-header {position:absolute;top:-1px;z-index:1;width:15px;padding:5px;white-space:normal;text-align:center;cursor:pointer;}html #hm_t_2982 .hm-t-header {height:auto!important;line-height:1!important;padding-top:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAJCAMAAABHXI/tAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyRpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIE1hY2ludG9zaCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpEOUUyRTQyMDExRUIxMUUzODhDMkE2MzkxMTc1ODQyMiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpEOUUyRTQyMTExRUIxMUUzODhDMkE2MzkxMTc1ODQyMiI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkQ5RTJFNDFFMTFFQjExRTM4OEMyQTYzOTExNzU4NDIyIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkQ5RTJFNDFGMTFFQjExRTM4OEMyQTYzOTExNzU4NDIyIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+5HRLtQAAAAZQTFRF////////VXz1bAAAAAJ0Uk5T/wDltzBKAAAALUlEQVR42mJgYCQRMAAB6TpI0wNWT5IesAZGUvSAlZJjCxl+ISfESI4XgAADAG+eAZl9iYtLAAAAAElFTkSuQmCC) no-repeat;*background-image:url(http://ecma.bdimg.com/holmes/t-slide-arrows.png);}html #hm_t_2982.hm-t-container{background-color:#00aeef;border-color:#ffffff;height:207px;width:485px;}html #hm_t_2982 .hm-t-header{background-color:#ffffff;color:#8493ca;font-family:arial,SimSun,sans-serif;font-size:14px;font-weight:normal;height:32px;line-height:32px;}html #hm_t_2982 .hm-t-img:hover{border-color:#D7D7D7;}html #hm_t_2982 .hm-t-item{list-style:square inside;}html #hm_t_2982 .hm-t-txt,html #hm_t_2982 .hm-t-img-title{color:#ffffff;font-family:arial,SimSun,sans-serif;font-size:14px;font-weight:normal;line-height:30px;text-decoration:none;}html #hm_t_2982 .hm-t-txt:active,html #hm_t_2982 .hm-t-img-title:active{color:#00008b;text-decoration:none;}html #hm_t_2982 .hm-t-txt:hover,html #hm_t_2982 .hm-t-img-title:hover{color:#ffff00;text-decoration:underline;}html #hm_t_2982 .hm-t-header-simple{background-color:#ffffff;color:#8493ca;font-family:arial,SimSun,sans-serif;font-size:14px;font-weight:normal;height:32px;line-height:32px;}html #hm_t_2982.hm-t-container{bottom:2px;left:2px}html #hm_t_2982 .hm-t-header{right:-26px;background-position:-36px 7px}</style><style>html #hm_t_2982 .hm-t-txt-wrapper{background-position:12px 13px}</style><style>html #hm_t_2982 .hm-t-item-img{width:Infinity%;*width:Infinity%}html #hm_t_2982 .hm-t-item-txt{width:100%;*width:99.9%}</style><style>html #hm_t_2982 .hm-t-img{width:72px;height:72px}html #hm_t_2982 .hm-t-img-title{width:72px}html #hm_t_2982 .hm-t-list-img{margin:0 242.5px}</style><style>html #hm_t_2982 .hm-t-img-title{line-height:17px}</style></head>
+<body><iframe frameborder="0" style="display: none;"></iframe><div id="bdshare_s" style="display: block;"><iframe id="bdsIfr" style="position:absolute;display:none;z-index:9999;" frameborder="0"></iframe><div id="bdshare_m" style="display: none;"><div id="bdshare_m_c"><h6>分享到</h6><ul><li><a href="http://www.xue5.com/Mobile/Mobile/695553.html#" class="bds_mshare mshare">一键分享</a></li><li><a href="http://www.xue5.com/Mobile/Mobile/695553.html#" class="bds_qzone qqkj">QQ空间</a></li><li><a href="http://www.xue5.com/Mobile/Mobile/695553.html#" class="bds_tsina xlwb">新浪微博</a></li><li><a href="http://www.xue5.com/Mobile/Mobile/695553.html#" class="bds_bdysc bdysc">百度云收藏</a></li><li><a href="http://www.xue5.com/Mobile/Mobile/695553.html#" class="bds_renren rrw">人人网</a></li><li><a href="http://www.xue5.com/Mobile/Mobile/695553.html#" class="bds_tqq txwb">腾讯微博</a></li><li><a href="http://www.xue5.com/Mobile/Mobile/695553.html#" class="bds_bdxc bdxc">百度相册</a></li><li><a href="http://www.xue5.com/Mobile/Mobile/695553.html#" class="bds_more">更多...</a></li></ul><p><a href="http://www.xue5.com/Mobile/Mobile/695553.html#" class="goWebsite">百度分享</a></p></div></div></div>
+<div id="mytopkuang">
+<div class="link"><script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/toptxt.js"></script>·<a href="http://www.testin.cn/" title="PS" target="_blank" class="toplink"><u>真机测试</u></a>·<a href="http://www.xue5.com/PS" title="PS" target="_blank" class="toplink"><u>PS教程</u></a>·<a href="http://www.xue5.com/Font" title="最全的设计字体库" target="_blank" class="toplink"><u>字体下载</u></a>·<a href="http://free.xue5.com/" title="最新破解免费软件下载" target="_blank" class="toplink"><u>软件下载</u></a>·<a href="http://www.testin.cn/" title="alexa排名查询" target="_blank" class="toplink"><u>alexa查询</u></a>·<a href="http://www.testin.cn/" title="网站源代码下载" target="_blank" class="toplink"><u>源码下载</u></a>·<a href="http://desk.xue5.com/" title="高清电脑桌面壁纸" target="_blank" class="toplink"><u>桌面壁纸</u></a>·<a href="http://www.testin.cn/" title="高清电脑桌面壁纸" target="_blank" class="toplink"><u>APP测试</u></a> &nbsp;&nbsp;&nbsp;
+</div>
+</div>
+
+<div class="wrap" id="mytop">
+<div class="logo"><a href="http://www.xue5.com/" title="学网" target="_blank"><img src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/logo.gif" width="165" height="60" border="0"></a></div>
+<div class="topBanner"><script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2.js"></script><!-- 广告位：xue5468.60 -->
+
+<script type="text/javascript">BAIDU_CLB_SLOT_ID = "713135";</script>
+
+<script type="text/javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/o.js"></script><div id="BAIDU_DUP_wrapper_713135_0"></div><script charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom"></script><script charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/fixed7o.js"></script><script type="text/javascript">
+/*xue5.topbanner.760*90，创建于2013-7-11*/
+var cpro_id = "u1318091";
+</script>
+<script src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/c.js" type="text/javascript"></script><script type="text/javascript" charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom(1)"></script><div style="display:none">-</div><iframe id="cproIframe1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/uijs(3).htm" width="770" height="60" align="center,center" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+<div class="topr1"><div class="right"><script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/30.js"></script></div></div></div>
+
+<!--导航 -->
+<script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/DIVit_Nav.js"></script><div id="myclass">
+<div class="class1">&nbsp;&nbsp;&nbsp;<a href="http://www.xue5.com/" target="_blank">首页</a>&nbsp;|&nbsp;<a title="软件应用" href="http://www.xue5.com/itedu/List/List_165.html" target="_blank">软件应用</a>&nbsp;|&nbsp;<a title="操作系统" href="http://www.xue5.com/windows/" target="_blank">操作系统</a>&nbsp;|&nbsp;<a title="站长大学" href="http://www.xue5.com/admin/" target="_blank">站长大学</a>&nbsp;|&nbsp;<a title="服务器" href="http://www.xue5.com/Server/" target="_blank">服务器</a>&nbsp;|&nbsp;<a title="移动开发" href="http://www.xue5.com/Mobile/" target="_blank">移动开发</a>&nbsp;|&nbsp;<a title="图像设计" href="http://www.xue5.com/ps/" target="_blank">图像设计</a>&nbsp;|&nbsp;<a title="网站开发" href="http://www.xue5.com/WebDev/" target="_blank">网站开发</a>&nbsp;|&nbsp;<a title="网页制作" href="http://www.xue5.com/itedu/List/List_171.html" target="_blank">网页制作</a>&nbsp;|&nbsp;<a title="数据库" href="http://www.xue5.com/data/" target="_blank">数据库</a>&nbsp;|&nbsp;<a title="程序开发" href="http://www.xue5.com/Developer/" target="_blank">程序开发</a>&nbsp;|&nbsp;<a title="字体下载" href="http://www.xue5.com/Font/" target="_blank">字体下载</a>&nbsp;</div>
+
+
+<div class="class2"><a href="http://www.xue5.com/WebDev/ASP/" target="_blank"><u>Asp</u></a>&nbsp;&nbsp;<a href="http://www.xue5.com/WebDev/PHP/" target="_blank"><u>PHP</u></a>&nbsp;&nbsp;<a href="http://www.xue5.com/WebDev/JSP/" target="_blank"><u>JSP</u></a>&nbsp;&nbsp;<a href="http://www.xue5.com/WebDev/Python/" target="_blank"><u>Python</u></a>&nbsp;&nbsp;<a href="http://www.xue5.com/WebDev/NET/" target="_blank"><u>Asp.Net</u></a>&nbsp;&nbsp;<a href="http://www.xue5.com/Data/NoSQL/" target="_blank"><u>NoSQL</u></a>&nbsp;&nbsp;<a href="http://www.xue5.com/Data/SQLserver/" target="_blank"><u>MSSQL</u></a>&nbsp;&nbsp;<a href="http://www.xue5.com/Data/MySQL/" target="_blank"><u>MySQL</u></a>&nbsp;&nbsp;<a href="http://www.xue5.com/Developer/Java/" target="_blank"><u>Java</u></a>&nbsp;&nbsp;<a href="http://www.xue5.com/WebDev/Ruby/" target="_blank"><u>Ruby</u></a>&nbsp;&nbsp;<a href="http://www.xue5.com/WebDev/JavaScript/" target="_blank"><u>JavaScript</u></a>&nbsp;&nbsp;<a href="http://www.xue5.com/WebDev/jQuery/" target="_blank"><u>jQuery</u></a>&nbsp;&nbsp;<a href="http://www.xue5.com/WebDev/Html5/" target="_blank"><u>HTML5</u></a>&nbsp;&nbsp;<a href="http://www.xue5.com/WebDev/Web/" target="_blank"><u>WEB前端</u></a>&nbsp;&nbsp;<a href="http://www.xue5.com/WebDev/XML/" target="_blank"><u>XML</u></a>&nbsp;&nbsp;<a href="http://www.xue5.com/WebDev/CGI/" target="_blank"><u>Perl/CGI</u></a>&nbsp;&nbsp;<a href="http://desk.xue5.com/" target="_blank"><u>壁纸下载</u></a></div>
+</div>
+
+<!--导航 -->
+<!--ad -->
+<div id="topad"><div class="left"><script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/1.js"></script><!-- 广告位：960*90 -->
+
+<script type="text/javascript">BAIDU_CLB_SLOT_ID = "90359";</script>
+
+<script type="text/javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/o.js"></script><div id="BAIDU_DUP_wrapper_90359_0"></div><script charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom(2)"></script><script type="text/javascript">
+/*xue5,top.960*90，创建于2013-7-9*/
+var cpro_id = "u1317059";
+  (window["cproStyleApi"] = window["cproStyleApi"] || {})[cpro_id] = {
+        xuanting: 1
+    };
+</script>
+<script src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/c.js" type="text/javascript"></script><script type="text/javascript" charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom(3)"></script><div style="display:none">-</div> <div id="cproIframe2Wrapplaceholder" style="width: 960px; height: 100px; margin: 0px; padding: 0px; background-image: none; border: none; background-position: initial initial; background-repeat: initial initial;"></div><div id="cproIframe2Wrap" width="960" height="100" baiduxuanting="baiduCproXuantingRoof" style="z-index: 2147483646; position: fixed; top: 5px; left: 104px;"><iframe id="cproIframe2" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/uijs(1).htm" width="960" height="90" align="center,center" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div></div><div class="right"><script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/22.js"></script></div></div>
+<!--ad -->
+
+
+<!--导航 -->
+<div id="classpath">
+<div class="left"> <img height="28" alt="Mp4v2实现h264+aac打包成Mp4视频文件" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/bg_nav2.gif" width="24" border="0"></div>
+<div class="right">您现在的位置：&nbsp;<a class="LinkPath" href="http://www.xue5.com/">学网</a>&nbsp;&gt;&gt;&nbsp;<a class="LinkPath" href="http://www.xue5.com/Mobile/Index.html">移动开发</a>&nbsp;&gt;&gt;&nbsp;<a class="LinkPath" href="http://www.xue5.com/Mobile/Mobile/Index.html">移动开发</a>&nbsp;&gt;&gt;&nbsp;正文</div>
+</div>
+
+
+<!--推荐位 -->
+<div class="wrap" id="toptj">
+<div class="toptjl">【<a href="http://www.xue5.com/Mobile/Mobile/Index.html" title="点击查看更多移动开发" target="_blank">移动开发</a>】</div>
+<div class="tjr"><ul><script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/26.js"></script><!-- 广告位：xue5文字链 -->
+
+<script type="text/javascript">BAIDU_CLB_SLOT_ID = "716597";</script>
+
+<script type="text/javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/o.js"></script><div id="BAIDU_DUP_wrapper_716597_0"></div><script charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom(4)"></script>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a title="鹰眼手机评测" target="_blank" href="http://www.appems.com/?xue5link"><font color="red"><u><b>鹰眼手机评测</b></u></font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a title="2013最疯狂扎眼的东西" target="_blank" href="http://s.click.taobao.com/t?e=s%3Dd8xpAX9RIZEcQipKwQzePCperVdZeJvioEMjVa6CPbsYX8TY%2BNEwd%2B4V0mYSMhEll7mLtMf1mMzDX0%2BHH2IEVVEDlbVN1QGJtY4Qt2cZ1lViM%2Be7nMptKRbgoXpUZ8S9%26m%3D2&p=mm_10165657_0_0"><font color="#07519A"><u><b>2013最疯狂！最扎眼！</b></u></font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a title="QQ动感影集" target="_blank" href="http://s.click.taobao.com/t?e=zGU34CA7K%2BPkqB05%2Bm7rfGGjlY60oHcc7bkKOQnPKxLtpyBp%2Bs8e49k9Ib%2BOmwoDe0QyDGsy%2FDb25tcerhiRGw%3D%3D&pid=mm_10165657_0_0"><font color="blue"><u><b>淘宝最疯狂促销</b></u></font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a title="游戏下载" target="_blank" href="http://www.appems.com/?xue5link"><font color="#000000"><u><b>免费游戏下载</b></u></font></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</ul></div>
+</div>
+<!--推荐位 -->
+
+
+<!--文章 -->
+<div class="wrap" id="mywen">
+<div class="lwen">
+<div class="lwenAD"><script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/11.js"></script></div>
+<div class="wtitle"><h3><a href="http://www.xue5.com/Mobile/Mobile/Index.html" title="点击查看更多移动开发" target="_blank">移动开发:Mp4v2实现h264+aac打包成Mp4视频文件</a></h3>
+<span class="hui"> [ 来源：<a href="http://www.xue5.com/Mobile/Mobile/Index.html" title="点击查看更多移动开发" target="_blank">CSDN </a>| 作者：<a href="http://www.xue5.com/Mobile/Mobile/Index.html" title="点击查看更多移动开发" target="_blank">jwzhangjie</a> | 时间：<a href="http://www.xue5.com/Mobile/Mobile/Index.html" title="点击查看更多移动开发" target="_blank">2013-4-27</a> | <a href="http://bbs.xue5.com/" title="去学网社区讨论此话题" target="_blank">去论坛</a>]</span>
+</div>
+<div class="lwenAD"><script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/27.js"></script><div style="height:10px;"></div>&nbsp;&nbsp;&nbsp;&nbsp;<script type="text/javascript"> /*xue5文章顶部640*60，创建于2010-8-25*/ var cpro_id = 'u167993';
+
+</script>
+
+<script type="text/javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/c(1).js"></script><script type="text/javascript" charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom(5)"></script><div style="display:none">-</div> <iframe id="cproIframe3" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/snippetcacher.htm" width="640" height="60" align="center,center" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+<div class="mycontent">
+<div id="new">
+        <div id="zhan"></div>
+        <div id="ad"><script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/24.js"></script><script type="text/javascript">/*xue5文章页左300*250，创建于2010-8-25*/ var cpro_id = 'u167999';</script><script src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/c(1).js" type="text/javascript"></script><script type="text/javascript" charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom(6)"></script><div style="display:none">-</div> <iframe id="cproIframe4" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/snippetcacher(1).htm" width="336" height="280" align="center,center" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>     
+</div>
+
+<p><span style="font-family:SimSun; font-size:18px">使用mp4v2实现录制mp4视频，需要准备如下信息：</span></p>
+<p><span style="font-family:SimSun; font-size:18px">1、获取mp4v2源码并编译成库文件，对于mp4v2的编译可以看前面的文章<strong><a href="http://blog.csdn.net/jwzhangjie/article/details/8783263">android 编译mp4v2 2.0.0生成动态库</a></strong>
+</span><span style="font-size:18px"><span style="font-family:SimSun">；</span></span><span class="link_title"><a href="http://blog.csdn.net/jwzhangjie/article/details/8809421"><span class="link_title"></span></a><a href="http://blog.csdn.net/jwzhangjie/article/details/8809421"><span style="font-family:SimSun; font-size:18px"></span></a></span></p>
+<p><span style="font-family:SimSun; font-size:18px">2、获取h264数据中的sps和pps数据，如果不会的话可以查看前面的文章&nbsp;
+<a href="http://blog.csdn.net/jwzhangjie/article/details/8809421">点击打开链接</a>；</span></p>
+<p><span style="font-family:SimSun; font-size:18px">3、获取音频解码信息，在调用MP4SetTrackESConfiguration使用，具体的获取方式一种通过faac获取，方法faacEncGetDecoderSpecificInfo(hEncoder,&amp;(ASC), &amp;(ASCLength));//得到解码信息另一种查看aac音频源码，并并对照aac的adts头格式分析：</span></p>
+<p><span style="font-family:SimSun; font-size:18px"></span></p><pre name="code" class="cpp">前五个字节为 AAC object types  LOW     2
+接着4个字节为 码率index        16000      8
+接着4个字节为 channels 个数                 1
+应打印出的正确2进制形式为  00010 | 1000 | 0001 | 000
+                                                            2          8        1</pre><p></p>
+<h3><span class="link_title">所以为（20，8）<br>
+</span></h3>
+4、规定时间刻度问题，一般网上都是设置90000，这个90000是指1秒的tick数，其实也就是把1秒中分为90000份，在添加音视频的函数中
+<p></p>
+<p>durationMP4_INVALID_DURATION<span style="font-family:SimSun; font-size:18px"></span></p><pre name="code" class="cpp">bool MP4WriteSample(
+MP4FileHandle hFile,
+
+MP4TrackId trackId,
+
+u_int8_t* pBytes,
+
+u_int32_t numBytes,
+
+MP4Duration duration = MP4_INVALID_DURATION,
+
+MP4Duration renderingOffset = 0,
+
+bool isSyncSample = true &nbsp; //如果是视频，此处是指当前视频帧是否是关键帧，如果是则为1，如果不是则为0
+
+); </pre>其中duration这个参数是指视频帧存在的时间，在90000这个刻度上存在的时间，如果用户确定录像时的音频视频帧是按固定速率的，那么在这里可以设置MP4_INVALID_DURATION，这时mp4v2就会使用下面的函数中的时间刻度<p></p>
+<p><span style="font-family:SimSun; font-size:18px">视频：</span></p>
+<p><span style="font-family:SimSun; font-size:18px"></span></p><pre name="code" class="cpp">MP4AddH264VideoTrack(MP4FileHandle hFile,
+                                    uint32_t timeScale,
+                                    MP4Duration sampleDuration,
+                                    uint16_t width,
+                                    uint16_t height,
+                                    uint8_t AVCProfileIndication,
+                                    uint8_t profile_compat,
+                                    uint8_t AVCLevelIndication,
+                                    uint8_t sampleLenFieldSizeMinusOne)
+<pre name="code" class="cpp">sampleDuration为视频的固定的视频帧的显示时间，计算的方法为timeScale（90000）* during(这个值是当前视频帧的采集时间 - 上一帧的视频
+采集时间)/1000,公式也可以改为timeScale（90000）/fps(码率例如20f)</pre><p></p>
+<pre></pre>
+音频：
+<p></p>
+<p>sampleDuration<span style="font-family:SimSun; font-size:18px"></span></p><pre name="code" class="cpp">MP4TrackId MP4AddAudioTrack(
+MP4FileHandle hFile,
+
+u_int32_t timeScale,
+
+u_int32_t sampleDuration,
+
+u_int8_t audioType = MP4_MPEG4_AUDIO_TYPE
+
+) 
+<pre name="code" class="cpp">sampleDuration 是音频的音频帧在时间刻度上存在的时间，这里的timeScale为音频的采样时间，例如44100,32000,计算方法给上面的视频一样的。
+<pre name="code" class="cpp"><pre name="code" class="cpp">sampleDuration主要作用是用于音视频同步问题。</pre><p></p>
+<pre></pre>
+<pre></pre>
+<pre></pre>
+5、mp4v2录制视频中h264的格式要求：<span style="font-family:SimSun; font-size:18px">NAL</span>长度+NAL数据，如果传过来的数据没有<span style="font-family:SimSun; font-size:18px">0x00000001</span>则是纯数据
+<p></p>
+<p><span style="font-family:SimSun; font-size:18px">(1)h264流中的NAL，头四个字节是0x00000001;<br>
+(2)mp4中的h264track，头四个字节要求是NAL的长度，并且是大端顺序；<br>
+(3)mp4v2很可能针对此种情况并没有做处理，所以写到mp4文件中的每个NAL头四个字节还是0x00000001.</span></p>
+<p><span style="font-family:SimSun; font-size:18px">因此如果传过来的h264数据是纯数据的话则需要如下修改：</span></p>
+<p><span style="font-family:SimSun; font-size:18px"></span></p><pre name="code" class="cpp">  int nalsize = frameSize;
+      buf[0] = (nalsize&amp;0xff000000)&gt;&gt;24;
+      buf[1] = (nalsize&amp;0x00ff0000)&gt;&gt;16;
+      buf[2] = (nalsize&amp;0x0000ff00)&gt;&gt;8;
+      buf[3] = nalsize&amp;0x000000ff;</pre>如果头部格式有其他的，则按照上面的方式偏移到纯数据位置。<p></p>
+<p><span style="font-family:SimSun; font-size:18px">6、mp4v2录制视频中aac的格式要求：有时远程传过来的aac数据的格式为adts+aac纯数据，则需要将adts部分去掉，即需要偏移7个字节的单位</span></p>
+<p><span style="font-family:SimSun; font-size:18px">下面就开始编写如何调用mp4v2库的方法：</span></p>
+<p><span style="font-family:SimSun; font-size:18px"></span></p><pre name="code" class="cpp">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include "../mp4v2/mp4v2.h"
+#include "AppCameraShooting.h"
+
+MP4TrackId video;
+MP4TrackId audio;
+MP4FileHandle fileHandle;
+unsigned char sps_pps_640[17] = {0x67, 0x42, 0x40, 0x1F, 0x96 ,0x54, 0x05, 0x01, 0xED, 0x00, 0xF3, 0x9E, 0xA0, 0x68, 0xCE, 0x38, 0x80}; //存储sps和pps
+int video_width = 640;
+int video_height = 480;
+
+//视频录制的调用,实现初始化
+	JNIEXPORT bool JNICALL Java_com_seuic_jni_AppCameraShooting_mp4init
+(JNIEnv *env, jclass clz, jstring title, jint type)
+{
+	const char* local_title = (*env)-&gt;GetStringUTFChars(env,title, NULL);
+	//创建mp4文件
+	fileHandle = MP4Create(local_title, 0);
+	if(fileHandle == MP4_INVALID_FILE_HANDLE)
+	{
+		return false;
+	}
+	memcpy(sps_pps, sps_pps_640, 17);
+	video_width = 640;
+	video_height = 480;
+	//设置mp4文件的时间单位
+	MP4SetTimeScale(fileHandle, 90000);
+	//创建视频track //根据ISO/IEC 14496-10 可知sps的第二个，第三个，第四个字节分别是 AVCProfileIndication,profile_compat,AVCLevelIndication     其中90000/20  中的20&gt;是fps
+	video = MP4AddH264VideoTrack(fileHandle, 90000, 90000/20, video_width, video_height, sps_pps[1], sps_pps[2], sps_pps[3], 3);
+	if(video == MP4_INVALID_TRACK_ID)
+	{
+		MP4Close(fileHandle, 0);
+		return false;
+	}
+	audio = MP4AddAudioTrack(fileHandle, 16000, 1024, MP4_MPEG2_AAC_LC_AUDIO_TYPE);
+	if(audio == MP4_INVALID_TRACK_ID)
+	{
+		MP4Close(fileHandle, 0);
+		return false;
+
+	}
+	//设置sps和pps
+	MP4AddH264SequenceParameterSet(fileHandle, video, sps_pps, 13);
+	MP4AddH264PictureParameterSet(fileHandle, video, sps_pps+13, 4);
+	MP4SetVideoProfileLevel(fileHandle, 0x7F);
+	MP4SetAudioProfileLevel(fileHandle, 0x02);
+	MP4SetTrackESConfiguration(fileHandle, audio, &amp;ubuffer[0], 2);
+	(*env)-&gt;ReleaseStringUTFChars(env, title, local_title);
+	return true;
+}
+	//添加视频帧的方法
+	JNIEXPORT void JNICALL Java_com_seuic_jni_AppCameraShooting_mp4packVideo
+(JNIEnv *env, jclass clz, jbyteArray data, jint size, jint keyframe)
+{
+	unsigned char *buf = (unsigned char *)(*env)-&gt;GetByteArrayElements(env, data, JNI_FALSE);
+	if(video_type == 1){
+		int nalsize = size;
+		buf[0] = (nalsize &amp; 0xff000000) &gt;&gt; 24;
+		buf[1] = (nalsize &amp; 0x00ff0000) &gt;&gt; 16;
+		buf[2] = (nalsize &amp; 0x0000ff00) &gt;&gt; 8;
+		buf[3] =  nalsize &amp; 0x000000ff;
+		MP4WriteSample(fileHandle, video, buf, size, MP4_INVALID_DURATION, 0, keyframe);
+	}
+	(*env)-&gt;ReleaseByteArrayElements(env, data, (jbyte *)buf, 0);
+}
+
+	//添加音频帧的方法
+	JNIEXPORT void JNICALL Java_com_seuic_jni_AppCameraShooting_mp4packAudio
+(JNIEnv *env, jclass clz, jbyteArray data, jint size)
+{
+	uint8_t *bufaudio = (uint8_t *)(*env)-&gt;GetByteArrayElements(env, data, JNI_FALSE);
+	MP4WriteSample(fileHandle, audio, &amp;bufaudio[7], size-7, MP4_INVALID_DURATION, 0, 1); //减去7为了删除adts头部的7个字节
+	(*env)-&gt;ReleaseByteArrayElements(env, data, (jbyte *)bufaudio, 0);
+}
+
+	//视频录制结束调用
+	JNIEXPORT void JNICALL Java_com_seuic_jni_AppCameraShooting_mp4close
+(JNIEnv *env, jclass clz)
+{
+	MP4Close(fileHandle, 0);
+}</pre><br>
+<p></p>
+
+
+
+<p></p>
+</pre></pre></pre></pre></div>
+<div class="mycontent3"><script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/16.js"></script><!-- 广告位：xue5文章底部紧跟600*200 -->
+
+<script type="text/javascript">BAIDU_CLB_SLOT_ID = "723364";</script>
+
+<script type="text/javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/o.js"></script><div id="BAIDU_DUP_wrapper_723364_0"></div><script charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom(7)"></script><script type="text/javascript">
+/*xue5文章底部300*250，创建于2013-7-9*/
+var cpro_id = "u1317049";
+</script>
+<script src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/c.js" type="text/javascript"></script><script type="text/javascript" charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom(8)"></script><div style="display:none">-</div><iframe id="cproIframe5" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/uijs.htm" width="690" height="200" align="center,center" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" allowtransparency="true"></iframe>
+
+
+
+<!-- Baidu Button BEGIN -->
+
+<div id="bdshare" class="bdshare_t bds_tools_32 get-codes-bdshare">
+
+<span style="font-size:14px;font-weight:bold">分享到：</span>
+
+<a class="bds_qzone" title="分享到QQ空间" href="http://www.xue5.com/Mobile/Mobile/695553.html#"></a>
+
+<a class="bds_tsina" title="分享到新浪微博" href="http://www.xue5.com/Mobile/Mobile/695553.html#"></a>
+
+<a class="bds_tqq" title="分享到腾讯微博" href="http://www.xue5.com/Mobile/Mobile/695553.html#"></a>
+
+<a class="bds_renren" title="分享到人人网" href="http://www.xue5.com/Mobile/Mobile/695553.html#"></a>
+
+<a class="bds_t163" title="分享到网易微博" href="http://www.xue5.com/Mobile/Mobile/695553.html#"></a>
+
+<span class="bds_more"></span>
+
+</div>
+
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;mini=1&amp;uid=11677" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/bds_s_v2.js"></script>
+
+
+
+<script type="text/javascript">
+
+document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000)
+
+</script>
+
+<!-- Baidu Button END --><br></div>
+<div class="mycontent2">
+<input title="点击复制标题和地址到剪贴版,直接在MSN/QQ上粘贴即可." type="button" value="将这篇文章发给QQ/MSN上的好友" onclick="copyToClipBoard()">
+</div>
+<div class="mycontent7">
+<script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/28.js"></script>
+</div>
+<div class="mycontent2">
+<a href="http://www.baidu.com/s?tn=xue5&wd=Mp4v2%CA%B5%CF%D6h264+aac%B4%F2%B0%FC%B3%C9Mp4%CA%D3%C6%B5%CE%C4%BC%FE" target="_blank"><span style="font-size:18px:line-height:20px;letter-sapcing:10px"><u><font color="#0033CC">点此进一步了解“</font><b><font color="#800000">Mp4v2实现h264+aac打包成Mp4视频文件</font></b><font color="#0033CC">”相关的更多内容</font></u></span></a>
+</div>
+<div class="wenbj hui">转载请注明<a href="http://www.xue5.com/" target="_blank" title="学网">［学网］：<u>http://www.xue5.com</u></a>&nbsp; </div>
+
+<div class="wenpre">
+<li>上一篇资料： <a class="LinkPrevArticle" href="http://www.xue5.com/Mobile/Mobile/695552.html" title="文章标题：苹果的UIActivityViewController
+作&#160;&#160;&#160;&#160;者：CSDN_Ask
+更新时间：2013-4-27 11:47:57">苹果的UIActivityViewController</a></li>&nbsp; <br>
+<li>下一篇资料： <a class="LinkNextArticle" href="http://www.xue5.com/Mobile/Mobile/695554.html" title="文章标题：Android SQLite加密
+作&#160;&#160;&#160;&#160;者：feifei454498130
+更新时间：2013-4-27 11:47:57">Android&nbsp;SQLite加密</a></li>&nbsp;
+
+</div>
+
+<div id="toptj2"><div class="toptjl2">【推荐阅读】</div></div>
+<div class="soft_intro"><script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/13.js"></script><!-- 广告位：xue5文章下 -->
+
+<script type="text/javascript">BAIDU_CLB_SLOT_ID = "714047";</script>
+
+<script type="text/javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/o.js"></script><div id="BAIDU_DUP_wrapper_714047_0"></div><script charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom(9)"></script><script type="text/javascript">
+/*xue5文章页面图片上。自定义标签云，创建于2013-8-10*/
+var cpro_id = "u1342023";
+</script>
+<script src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/c.js" type="text/javascript"></script><script type="text/javascript" charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom(10)"></script><div style="display:none">-</div><iframe id="cproIframe6" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/uijs(5).htm" width="690" height="100" align="center,center" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+<div class="soft_introPIC"><table width="100%" cellpadding="0" cellspacing="5" border="0" align="center"><tbody><tr valign="top"><td align="center"><a class="" href="http://www.xue5.com/WebDev/NET/695424.html" title="表格绑定数据源 - Insus.NET" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2013042618443056_S.jpg" width="150" height="113" border="0"></a><br><a class="" href="http://www.xue5.com/WebDev/NET/695424.html" title="表格绑定数据源 - Insus.NET" target="_blank">表格绑定数据源&nbsp;-&nbsp;Insus.NET</a></td><td align="center"><a class="" href="http://www.xue5.com/WebDev/Site/695421.html" title="高清精美壁纸：2013年5月桌面日历壁纸免费下载 - 梦想天空（山边小溪）" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2013042618440097_S.jpg" width="150" height="113" border="0"></a><br><a class="" href="http://www.xue5.com/WebDev/Site/695421.html" title="高清精美壁纸：2013年5月桌面日历壁纸免费下载 - 梦想天空（山边小溪）" target="_blank">高清精美壁纸：2013年5月桌面日历壁纸免费下载&nbsp;-&nbsp;梦…</a></td><td align="center"><a class="" href="http://www.xue5.com/WebDev/JavaScript/695417.html" title="中文字符 与 十六进制Unicode编码 相互转换 - 段华建" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2013042618434914_S.jpg" width="150" height="113" border="0"></a><br><a class="" href="http://www.xue5.com/WebDev/JavaScript/695417.html" title="中文字符 与 十六进制Unicode编码 相互转换 - 段华建" target="_blank">中文字符&nbsp;与&nbsp;十六进制Unicode编码&nbsp;相互转换&nbsp;-&nbsp;段华建</a></td><td align="center"><a class="" href="http://www.xue5.com/WebDev/JavaScript/695416.html" title="javascript冒泡和默认事件 - Raphael_Zorro" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2013042618434904.gif" width="150" height="113" border="0"></a><br><a class="" href="http://www.xue5.com/WebDev/JavaScript/695416.html" title="javascript冒泡和默认事件 - Raphael_Zorro" target="_blank">javascript冒泡和默认事件&nbsp;-&nbsp;Raphael_Zorro</a></td></tr><tr valign="top"><td align="center"><a class="" href="http://www.xue5.com/WebDev/Web/695401.html" title="Cocos2D-HTML5开发环境搭建" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2013042618430999_S.jpg" width="150" height="113" border="0"></a><br><a class="" href="http://www.xue5.com/WebDev/Web/695401.html" title="Cocos2D-HTML5开发环境搭建" target="_blank">Cocos2D-HTML5开发环境搭建</a></td><td align="center"><a class="" href="http://www.xue5.com/WebDev/Web/695400.html" title="jquery实现商品拖动选择效果" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2013042618430720_S.jpg" width="150" height="113" border="0"></a><br><a class="" href="http://www.xue5.com/WebDev/Web/695400.html" title="jquery实现商品拖动选择效果" target="_blank">jquery实现商品拖动选择效果</a></td><td align="center"><a class="" href="http://www.xue5.com/WebDev/Site/695393.html" title="辨别虚假流量的十二种方法" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2013042618425419_S.jpg" width="150" height="113" border="0"></a><br><a class="" href="http://www.xue5.com/WebDev/Site/695393.html" title="辨别虚假流量的十二种方法" target="_blank">辨别虚假流量的十二种方法</a></td><td align="center"><a class="" href="http://www.xue5.com/WebDev/Site/695294.html" title="给div加滚动条 div显示滚动条设置代码" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2013042615003188_S.jpg" width="150" height="113" border="0"></a><br><a class="" href="http://www.xue5.com/WebDev/Site/695294.html" title="给div加滚动条 div显示滚动条设置代码" target="_blank">给div加滚动条&nbsp;div显示滚动条设置代码</a></td></tr></tbody></table></div>
+
+<div id="toptj2"><div class="toptjl2">【<a href="http://www.xue5.com/Mobile/Mobile/Index.html" title="点击查看更多移动开发" target="_blank">更多移动开发资料……</a>】</div></div>
+<div id="down">
+<div class="left">·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Android/695617.html" title="文章标题：调用打电话和发短信、收短信接口、发Email （Call, Dial, SMSManager, Broadcast, Email） -
+作&#160;&#160;&#160;&#160;者：sunzeping
+更新时间：2013-4-27 14:15:30" target="_blank">调用打电话和发短信、收短信接口、发Em…</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Android/695616.html" title="文章标题：Android应用的自动升级、更新模块的实现 -
+作&#160;&#160;&#160;&#160;者：sunzeping
+更新时间：2013-4-27 14:15:29" target="_blank">Android应用的自动升级、更新模块的实现…</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Mobile/695615.html" title="文章标题：IOS Notification 通知中心
+作&#160;&#160;&#160;&#160;者：gloryFlow
+更新时间：2013-4-27 14:14:27" target="_blank">IOS&nbsp;Notification&nbsp;通知中心</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Mobile/695614.html" title="文章标题：Cocos2d-x2.1.1-ClippingNodeTest 深入分析
+作&#160;&#160;&#160;&#160;者：honghaier
+更新时间：2013-4-27 14:14:27" target="_blank">Cocos2d-x2.1.1-ClippingNodeTest&nbsp;深入…</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Mobile/695613.html" title="文章标题：重新回到csdn
+作&#160;&#160;&#160;&#160;者：chonbj
+更新时间：2013-4-27 14:14:27" target="_blank">重新回到csdn</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Mobile/695612.html" title="文章标题：Android中静态变量的生命周期
+作&#160;&#160;&#160;&#160;者：ctcwri
+更新时间：2013-4-27 14:14:26" target="_blank">Android中静态变量的生命周期</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Mobile/695611.html" title="文章标题：ios中颜色设置
+作&#160;&#160;&#160;&#160;者：rbyyy924805
+更新时间：2013-4-27 14:14:26" target="_blank">ios中颜色设置</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Mobile/695610.html" title="文章标题：Android dialog设置无背景
+作&#160;&#160;&#160;&#160;者：qjlhlh
+更新时间：2013-4-27 14:14:26" target="_blank">Android&nbsp;dialog设置无背景</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Android/695587.html" title="文章标题：Android.mk的用法和基础
+作&#160;&#160;&#160;&#160;者：我爱咸蛋黄
+更新时间：2013-4-27 11:49:19" target="_blank">Android.mk的用法和基础</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Android/695586.html" title="文章标题：Android编译系统中头文件搜索路径的顺序问题
+作&#160;&#160;&#160;&#160;者：我爱咸蛋黄
+更新时间：2013-4-27 11:49:19" target="_blank">Android编译系统中头文件搜索路径的顺序…</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Android/695585.html" title="文章标题：Android编译系统 - pathmap.mk（宏）
+作&#160;&#160;&#160;&#160;者：我爱咸蛋黄
+更新时间：2013-4-27 11:49:19" target="_blank">Android编译系统&nbsp;-&nbsp;pathmap.mk（宏）</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Android/695584.html" title="文章标题：Android开发中用到的命令——整理贴
+作&#160;&#160;&#160;&#160;者：神剑戎
+更新时间：2013-4-27 11:49:18" target="_blank">Android开发中用到的命令—&amp;mdash…</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Android/695583.html" title="文章标题：Fragment 的生命周期及使用方法详解
+作&#160;&#160;&#160;&#160;者：梁DH
+更新时间：2013-4-27 11:49:17" target="_blank">Fragment&nbsp;的生命周期及使用方法详解</a><br></div>
+<div class="center"><div class="pic_art">
+<div class="pic_art_img"><a class="" href="http://www.xue5.com/WebDev/NET/695424.html" title="表格绑定数据源 - Insus.NET" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2013042618443056_S.jpg" width="100" height="75" border="0"></a></div>
+<div class="pic_art_title"><a class="" href="http://www.xue5.com/WebDev/NET/695424.html" title="表格绑定数据源 - Insus.NET" target="_blank">表格绑定数据源&nbsp;-…</a></div>
+</div>
+<div class="pic_art">
+<div class="pic_art_img"><a class="" href="http://www.xue5.com/WebDev/Site/695421.html" title="高清精美壁纸：2013年5月桌面日历壁纸免费下载 - 梦想天空（山边小溪）" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2013042618440097_S.jpg" width="100" height="75" border="0"></a></div>
+<div class="pic_art_title"><a class="" href="http://www.xue5.com/WebDev/Site/695421.html" title="高清精美壁纸：2013年5月桌面日历壁纸免费下载 - 梦想天空（山边小溪）" target="_blank">高清精美壁纸：20…</a></div>
+</div>
+<div class="pic_art">
+<div class="pic_art_img"><a class="" href="http://www.xue5.com/WebDev/JavaScript/695417.html" title="中文字符 与 十六进制Unicode编码 相互转换 - 段华建" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2013042618434914_S.jpg" width="100" height="75" border="0"></a></div>
+<div class="pic_art_title"><a class="" href="http://www.xue5.com/WebDev/JavaScript/695417.html" title="中文字符 与 十六进制Unicode编码 相互转换 - 段华建" target="_blank">中文字符&nbsp;与&nbsp;十六…</a></div>
+</div>
+</div>
+<div class="right"><div class="listbg">·&nbsp;<a class="listA" href="http://www.xue5.com/WebDev/NET/695425.html" title="aspnet中40w行数据怎么导出Excel - 飞来飞去" target="_blank">aspnet中40w行数据怎么导出Excel&nbsp;-&nbsp;飞来…</a></div><div class="listbg2">·&nbsp;<a class="listA" href="http://www.xue5.com/WebDev/NET/695424.html" title="表格绑定数据源 - Insus.NET" target="_blank">表格绑定数据源&nbsp;-&nbsp;Insus.NET</a></div><div class="listbg">·&nbsp;<a class="listA" href="http://www.xue5.com/WebDev/NET/695423.html" title="asp.net 数据表的排序 - 幸福的笨笨熊" target="_blank">asp.net&nbsp;数据表的排序&nbsp;-&nbsp;幸福的笨笨熊</a></div><div class="listbg2">·&nbsp;<a class="listA" href="http://www.xue5.com/WebDev/Html5/695422.html" title="【Cocos2d-html5】初识Cocos2d-html5 - 一尺高的豆芽^^" target="_blank">【Cocos2d-html5】初识Cocos2d-html5&nbsp;-…</a></div><div class="listbg">·&nbsp;<a class="listA" href="http://www.xue5.com/WebDev/Site/695421.html" title="高清精美壁纸：2013年5月桌面日历壁纸免费下载 - 梦想天空（山边小溪）" target="_blank">高清精美壁纸：2013年5月桌面日历壁纸免…</a></div><div class="listbg2">·&nbsp;<a class="listA" href="http://www.xue5.com/WebDev/Site/695420.html" title="LESS/Sass/CoffeeScript图形编译工具推荐 - Koala - Ethanlai" target="_blank">LESS/Sass/CoffeeScript图形编译工具推…</a></div><div class="listbg">·&nbsp;<a class="listA" href="http://www.xue5.com/WebDev/JavaScript/695419.html" title="《基于MVC的JavaScript Web富应用开发》读书笔记一：MVC和类 - artwl" target="_blank">《基于MVC的JavaScript&nbsp;Web富应用开发》…</a></div><div class="listbg2">·&nbsp;<a class="listA" href="http://www.xue5.com/WebDev/JavaScript/695418.html" title="[Javascript]客户端检测 - 辞职回家卖烧饼" target="_blank">[Javascript]客户端检测&nbsp;-&nbsp;辞职回家卖烧…</a></div><div class="listbg">·&nbsp;<a class="listA" href="http://www.xue5.com/WebDev/JavaScript/695417.html" title="中文字符 与 十六进制Unicode编码 相互转换 - 段华建" target="_blank">中文字符&nbsp;与&nbsp;十六进制Unicode编码&nbsp;相互…</a></div><div class="listbg2">·&nbsp;<a class="listA" href="http://www.xue5.com/WebDev/JavaScript/695416.html" title="javascript冒泡和默认事件 - Raphael_Zorro" target="_blank">javascript冒泡和默认事件&nbsp;-&nbsp;Raphael_Z…</a></div><div class="listbg">·&nbsp;<a class="listA" href="http://www.xue5.com/WebDev/PHP/695415.html" title="PHP学习笔记(11)程序之外 - 第一缕阳光" target="_blank">PHP学习笔记(11)程序之外&nbsp;-&nbsp;第一缕阳光</a></div><div class="listbg2">·&nbsp;<a class="listA" href="http://www.xue5.com/WebDev/Web/695414.html" title="使用&lt;input type=text value=&lt;%=str%&gt;&gt;出现取值不全的问题" target="_blank">使用&lt;input&nbsp;type=text&nbsp;value=&lt;%=str%&gt;&gt;…</a></div></div>
+</div>
+
+
+
+<div class="soft_intro2"><b>学网·特别声明：</b><br> 本站除部分特别声明禁止转载的专稿外的其他文章可以自由转载，但请务必注明出处和原始作者。本站所有文章版权归文章原始作者所有。对于被本站转载文章的个人和网站，我们表示深深的谢意。如果本站转载的文章有版权问题，请联系编辑人员Xababy#Gmail.com，我们尽快予以更正。</div>
+
+</div>
+  
+<!--右边 -->
+
+<div class="rwen">
+<div class="rwen1"><script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/31.js"></script><!-- 广告位：free右侧300-2 -->
+
+<script type="text/javascript">BAIDU_CLB_SLOT_ID = "138708";</script>
+
+<script type="text/javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/o.js"></script><div id="BAIDU_DUP_wrapper_138708_0"></div><script charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom(11)"></script><script type="text/javascript">
+/*xue5右上300*300，创建于2013-7-9*/
+var cpro_id = "u1317070";
+</script>
+<script src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/c.js" type="text/javascript"></script><script type="text/javascript" charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom(12)"></script><div style="display:none">-</div><iframe id="cproIframe7" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/uijs(2).htm" width="300" height="300" align="center,center" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+<div class="rwen2t">【<a href="http://www.xue5.com/Mobile/Mobile/Index.html" title="点击查看更多移动开发" target="_blank">最新移动开发资料</a>】</div>
+<div class="rwen2c2">·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Android/695617.html" title="文章标题：调用打电话和发短信、收短信接口、发Email （Call, Dial, SMSManager, Broadcast, Email） -
+作&#160;&#160;&#160;&#160;者：sunzeping
+更新时间：2013-4-27 14:15:30" target="_blank">调用打电话和发短信、收短信接口、发Em…</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Android/695616.html" title="文章标题：Android应用的自动升级、更新模块的实现 -
+作&#160;&#160;&#160;&#160;者：sunzeping
+更新时间：2013-4-27 14:15:29" target="_blank">Android应用的自动升级、更新模块的实现…</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Mobile/695613.html" title="文章标题：重新回到csdn
+作&#160;&#160;&#160;&#160;者：chonbj
+更新时间：2013-4-27 14:14:27" target="_blank">重新回到csdn</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Mobile/695614.html" title="文章标题：Cocos2d-x2.1.1-ClippingNodeTest 深入分析
+作&#160;&#160;&#160;&#160;者：honghaier
+更新时间：2013-4-27 14:14:27" target="_blank">Cocos2d-x2.1.1-ClippingNodeTest&nbsp;深入…</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Mobile/695615.html" title="文章标题：IOS Notification 通知中心
+作&#160;&#160;&#160;&#160;者：gloryFlow
+更新时间：2013-4-27 14:14:27" target="_blank">IOS&nbsp;Notification&nbsp;通知中心</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Mobile/695610.html" title="文章标题：Android dialog设置无背景
+作&#160;&#160;&#160;&#160;者：qjlhlh
+更新时间：2013-4-27 14:14:26" target="_blank">Android&nbsp;dialog设置无背景</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Mobile/695611.html" title="文章标题：ios中颜色设置
+作&#160;&#160;&#160;&#160;者：rbyyy924805
+更新时间：2013-4-27 14:14:26" target="_blank">ios中颜色设置</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Mobile/695612.html" title="文章标题：Android中静态变量的生命周期
+作&#160;&#160;&#160;&#160;者：ctcwri
+更新时间：2013-4-27 14:14:26" target="_blank">Android中静态变量的生命周期</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Android/695585.html" title="文章标题：Android编译系统 - pathmap.mk（宏）
+作&#160;&#160;&#160;&#160;者：我爱咸蛋黄
+更新时间：2013-4-27 11:49:19" target="_blank">Android编译系统&nbsp;-&nbsp;pathmap.mk（宏）</a><br>·<a class="LinkArticleCorrelative" href="http://www.xue5.com/Mobile/Android/695586.html" title="文章标题：Android编译系统中头文件搜索路径的顺序问题
+作&#160;&#160;&#160;&#160;者：我爱咸蛋黄
+更新时间：2013-4-27 11:49:19" target="_blank">Android编译系统中头文件搜索路径的顺序…</a><br></div>
+<div class="rwen1"><script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/12.js"></script><!-- 广告位：xue5右下下300*250 -->
+
+<script type="text/javascript">BAIDU_CLB_SLOT_ID = "713181";</script>
+
+<script type="text/javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/o.js"></script><div id="BAIDU_DUP_wrapper_713181_0"></div><script charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom(13)"></script><script type="text/javascript">
+/*xue5右下2自定义标签云，创建于2013-8-10*/
+var cpro_id = "u1342020";
+</script>
+<script src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/c.js" type="text/javascript"></script><script type="text/javascript" charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom(14)"></script><div style="display:none">-</div><iframe id="cproIframe8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/uijs(4).htm" width="300" height="300" align="center,center" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+<div class="rwen2t">【<a href="http://wwww.xue5.com/admin" title="点击查看更多成功站长访谈" target="_blank">成功站长访谈</a>】</div>
+<div class="rwen2cT"><table width="100%" cellpadding="0" cellspacing="5" border="0" align="center"><tbody><tr valign="top"><td align="center"><a class="" href="http://www.xue5.com/Admin/201304/694290.html" title="茶话:成都在线票务电商-0K蓉" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2013042412403133_S.jpg" width="139" height="105" border="0"></a><br><a class="" href="http://www.xue5.com/Admin/201304/694290.html" title="茶话:成都在线票务电商-0K蓉" target="_blank">茶话:成都在线票务电商-0K蓉</a></td><td align="center"><a class="" href="http://www.xue5.com/Admin/201304/693713.html" title="刘祎伟:手机游戏如何进行海外市场推广?" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2013042314191251_S.jpg" width="139" height="105" border="0"></a><br><a class="" href="http://www.xue5.com/Admin/201304/693713.html" title="刘祎伟:手机游戏如何进行海外市场推广?" target="_blank">刘祎伟:手机游戏如何进行海外市场推广?</a></td></tr><tr valign="top"><td align="center"><a class="" href="http://www.xue5.com/Admin/201304/693701.html" title="茶馆访谈刘祎伟:手机游戏如何进行海外市场推广?" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2013042314184324_S.jpg" width="139" height="105" border="0"></a><br><a class="" href="http://www.xue5.com/Admin/201304/693701.html" title="茶馆访谈刘祎伟:手机游戏如何进行海外市场推广?" target="_blank">茶馆访谈刘祎伟:手机游戏如何进行海外市场推广?</a></td><td align="center"><a class="" href="http://www.xue5.com/Admin/201304/692927.html" title="大佬当年：上升期的史玉柱与陈天桥" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2013042214233402_S.jpg" width="139" height="105" border="0"></a><br><a class="" href="http://www.xue5.com/Admin/201304/692927.html" title="大佬当年：上升期的史玉柱与陈天桥" target="_blank">大佬当年：上升期的史玉柱与陈天桥</a></td></tr></tbody></table></div>
+<div class="rwen2c2"><div class="rwen1"><script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/17.js"></script></div></div>
+<div class="rwen2t">【<a href="http://www.xue5.com/itedu/List/List_341.html" title="点击查看更多JS脚本实例" target="_blank">JS脚本实例</a>】</div>
+<div class="rwen2c2"><div class="listbg">·&nbsp;<a class="listA" href="http://www.xue5.com/itedu/200902/191325.html" title="较好的视觉效果的网页选项卡" target="_blank">较好的视觉效果的网页选项卡</a></div><div class="listbg2">·&nbsp;<a class="listA" href="http://www.xue5.com/itedu/200902/46612.html" title="新浪体育频道文字滚动特效代码" target="_blank">新浪体育频道文字滚动特效代码</a></div><div class="listbg">·&nbsp;<a class="listA" href="http://www.xue5.com/itedu/200902/46609.html" title="百度有啊商城CSS+XHTML实现的圆角" target="_blank">百度有啊商城CSS+XHTML实现的圆角</a></div><div class="listbg2">·&nbsp;<a class="listA" href="http://www.xue5.com/itedu/200902/37468.html" title="土豆网首页轮换图片特效代码" target="_blank">土豆网首页轮换图片特效代码</a></div><div class="listbg">·&nbsp;<a class="listA" href="http://www.xue5.com/itedu/200902/53752.html" title="仿Taobao首页商品分类列表特效代码" target="_blank">仿Taobao首页商品分类列表特效代码</a></div><div class="listbg2">·&nbsp;<a class="listA" href="http://www.xue5.com/itedu/200902/46605.html" title="JavaScript实现网页图片等比例缩放效果" target="_blank">JavaScript实现网页图片等比例缩放</a></div><div class="listbg">·&nbsp;<a class="listA" href="http://www.xue5.com/itedu/200901/42953.html" title="JS实现5秒后弹窗的代码" target="_blank">JS实现5秒后弹窗的代码</a></div><div class="listbg2">·&nbsp;<a class="listA" href="http://www.xue5.com/itedu/200901/39068.html" title="Javascript万年历代码实例制作" target="_blank">Javascript万年历代码实例制作</a></div><div class="listbg">·&nbsp;<a class="listA" href="http://www.xue5.com/itedu/200901/39075.html" title="JS实现的滑动展开与折叠效果" target="_blank">JS实现的滑动展开与折叠效果</a></div><div class="listbg2">·&nbsp;<a class="listA" href="http://www.xue5.com/itedu/200901/39074.html" title="一个非常简洁高效的JS右键菜单!" target="_blank">一个非常简洁高效的JS右键菜单!</a></div><div class="listbg">·&nbsp;<a class="listA" href="http://www.xue5.com/itedu/200805/200996.html" title="10个能用JavaScript实现的图片特效" target="_blank">10个能用JavaScript实现的图片特效</a></div><div class="listbg2">·&nbsp;<a class="listA" href="http://www.xue5.com/itedu/200802/103782.html" title="windows.moveBy()函数使用方法示例" target="_blank">windows.moveBy()函数使用方法示例</a></div></div>
+<div class="rwen2t">【<a href="http://www.xue5.com/itedu/List/List_207.html" title="点击查看更多CSS实例教程" target="_blank">CSS实例教程</a>】</div>
+<div class="rwen2cT"><table width="100%" cellpadding="0" cellspacing="5" border="0" align="center"><tbody><tr valign="top"><td align="center"><a class="" href="http://www.xue5.com/itedu/201012/454402.html" title="CSS3的简单试验" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/20101210125926381.png" width="139" height="105" border="0"></a><br><a class="" href="http://www.xue5.com/itedu/201012/454402.html" title="CSS3的简单试验" target="_blank">CSS3的简单试验</a></td><td align="center"><a class="" href="http://www.xue5.com/itedu/200905/302631.html" title="结关于网页表单反馈的一些问题" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2009050703561503_S.gif" width="139" height="105" border="0"></a><br><a class="" href="http://www.xue5.com/itedu/200905/302631.html" title="结关于网页表单反馈的一些问题" target="_blank">结关于网页表单反馈的一些问题</a></td></tr><tr valign="top"><td align="center"><a class="" href="http://www.xue5.com/itedu/200905/302630.html" title="页教学网收集的优秀的CSS技巧与教程" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2009050703554784_S.jpg" width="139" height="105" border="0"></a><br><a class="" href="http://www.xue5.com/itedu/200905/302630.html" title="页教学网收集的优秀的CSS技巧与教程" target="_blank">页教学网收集的优秀的CSS技巧与教程</a></td><td align="center"><a class="" href="http://www.xue5.com/itedu/200905/302210.html" title="CSS教程:滑动门与选项卡" target="_blank"><img class="pic1" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/2009050608500622_S.jpg" width="139" height="105" border="0"></a><br><a class="" href="http://www.xue5.com/itedu/200905/302210.html" title="CSS教程:滑动门与选项卡" target="_blank">CSS教程:滑动门与选项卡</a></td></tr></tbody></table></div>
+<div class="rwen2t">【<a href="http://www.xue5.com/Developer" title="点击查看更多网站开发资料" target="_blank">网站开发经典教程</a>】</div>
+<div class="rwen2c">
+·&nbsp;[<a class="listA" href="http://www.xue5.com/itedu/List/List_297.html">ASP技巧</a>]<a class="listA" href="http://www.xue5.com/itedu/201005/415357.html" title="ASP将access数据导出为excel电子表的方法" target="_blank">ASP将access数据导出为excel电子</a><br>·&nbsp;[<a class="listA" href="http://www.xue5.com/itedu/List/List_297.html">ASP技巧</a>]<a class="listA" href="http://www.xue5.com/itedu/201004/408030.html" title="Ewebeditor及fckeditork单引号的问题" target="_blank">Ewebeditor及fckeditork单引号的</a><br>·&nbsp;[<a class="listA" href="http://www.xue5.com/itedu/List/List_297.html">ASP技巧</a>]<a class="listA" href="http://www.xue5.com/itedu/201004/407523.html" title="高仿google suggest ajax示例" target="_blank">高仿google&nbsp;suggest&nbsp;ajax示例</a><br>·&nbsp;[<a class="listA" href="http://www.xue5.com/itedu/List/List_297.html">ASP技巧</a>]<a class="listA" href="http://www.xue5.com/itedu/201004/407522.html" title="动态程序防采集的新方法" target="_blank">动态程序防采集的新方法</a><br>·&nbsp;[<a class="listA" href="http://www.xue5.com/itedu/List/List_301.html">PHP技巧</a>]<a class="listA" href="http://www.xue5.com/itedu/201005/416274.html" title="PHP通用采集程序开发视频教程" target="_blank">PHP通用采集程序开发视频教程</a><br>·&nbsp;[<a class="listA" href="http://www.xue5.com/itedu/List/List_301.html">PHP技巧</a>]<a class="listA" href="http://www.xue5.com/itedu/201005/415359.html" title="9个必须知道的实用PHP函数和功能" target="_blank">9个必须知道的实用PHP函数和功能</a><br>·&nbsp;[<a class="listA" href="http://www.xue5.com/itedu/List/List_301.html">PHP技巧</a>]<a class="listA" href="http://www.xue5.com/itedu/201005/415358.html" title="SQL语句在JavaScript中的应用" target="_blank">SQL语句在JavaScript中的应用</a><br>·&nbsp;[<a class="listA" href="http://www.xue5.com/itedu/List/List_301.html">PHP技巧</a>]<a class="listA" href="http://www.xue5.com/itedu/201004/412478.html" title="编程小技巧 PHP获文件扩展名的三种方法" target="_blank">编程小技巧&nbsp;PHP获文件扩展名的三</a><br>
+
+·&nbsp;[<a class="listA" href="http://www.xue5.com/itedu/List/List_304.html">JSP基础</a>]<a class="listA" href="http://www.xue5.com/itedu/200902/191330.html" title="谈JSP与XML的交互" target="_blank">谈JSP与XML的交互</a><br>·&nbsp;[<a class="listA" href="http://www.xue5.com/itedu/List/List_305.html">JSP技巧</a>]<a class="listA" href="http://www.xue5.com/itedu/200901/39073.html" title="html网页编码设置导致jsp页面乱码" target="_blank">html网页编码设置导致jsp页面乱码</a><br>·&nbsp;[<a class="listA" href="http://www.xue5.com/itedu/List/List_305.html">JSP技巧</a>]<a class="listA" href="http://www.xue5.com/itedu/200805/199812.html" title="如何建立JSP操作用以提高数据库访问效率" target="_blank">如何建立JSP操作用以提高数据库访</a><br>·&nbsp;[<a class="listA" href="http://www.xue5.com/itedu/List/List_305.html">JSP技巧</a>]<a class="listA" href="http://www.xue5.com/itedu/200805/199811.html" title="关于JSP中基于Session的在线用户统计分析" target="_blank">关于JSP中基于Session的在线用户</a><br>·&nbsp;[<a class="listA" href="http://www.xue5.com/itedu/List/List_308.html">.Net技巧</a>]<a class="listA" href="http://www.xue5.com/itedu/201005/415356.html" title="微软宣布.NET 3.0/3.5主流支持终止日期" target="_blank">微软宣布.NET&nbsp;3.0/3.5主流支持终</a><br>·&nbsp;[<a class="listA" href="http://www.xue5.com/itedu/List/List_308.html">.Net技巧</a>]<a class="listA" href="http://www.xue5.com/itedu/201005/414665.html" title="Asp.Net 性能 ViewState 压缩的2种方法" target="_blank">Asp.Net&nbsp;性能&nbsp;ViewState&nbsp;压缩的2</a><br>·&nbsp;[<a class="listA" href="http://www.xue5.com/itedu/List/List_308.html">.Net技巧</a>]<a class="listA" href="http://www.xue5.com/itedu/201004/413086.html" title="ASP.NET控件开发系列之图片切换web控件" target="_blank">ASP.NET控件开发系列之图片切换w</a><br>·&nbsp;[<a class="listA" href="http://www.xue5.com/itedu/List/List_308.html">.Net技巧</a>]<a class="listA" href="http://www.xue5.com/itedu/201004/413085.html" title="在ASP.NET 使用WebDAV访问Outlook的日历" target="_blank">在ASP.NET&nbsp;使用WebDAV访问Outloo</a><br>
+</div>
+<div class="rwen2c2"><div class="rwen1"><script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/20.js"></script></div></div>
+
+
+</div></div>
+
+<!--右边 -->
+<div class="wrap" id="RightContent">
+<div class="s6"><script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/25.js"></script><!-- 广告位：xue960*90 -->
+
+<script type="text/javascript">BAIDU_CLB_SLOT_ID = "713147";</script>
+
+<script type="text/javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/o.js"></script><div id="BAIDU_DUP_wrapper_713147_0"></div><script charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom(15)"></script><script type="text/javascript">
+/*xue5底部990*150自定义标签云，创建于2013-8-10*/
+var cpro_id = "u1342025";
+</script>
+<script src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/c.js" type="text/javascript"></script><script type="text/javascript" charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom(16)"></script><div style="display:none">-</div><iframe id="cproIframe9" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/uijs(6).htm" width="995" height="300" align="center,center" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+</div>
+<!--下边 -->
+<div class="wrap" id="myfoot">
+<div class="f1"><a onclick="this.style.behavior=&#39;url(#default#homepage)&#39;;this.setHomePage(&#39;http://www.xue5.com&#39;);" href="http://www.xue5.com/#">设为首页</a> - <a href="javascript:window.external.addFavorite('http://www.xue5.com','学网');">收藏学网</a> - <a href="http://www.xue5.com/itedu/68.html" target="_blank">关于学网</a> - <a href="http://www.xue5.com/xml/Rss.xml" target="_blank">RSS订阅</a> - <a href="http://www.xue5.com/Copyright.asp" target="_blank">版权申明</a> - <a href="http://www.xue5.com/FriendSite/Index.asp" target="_blank">友情链接</a> - <a href="mailto:xababy#Gmail.com" target="_blank">联系学网</a> - <a href="http://www.xue5.com/SiteMap/Article1.htm" target="_blank">网站地图</a> - <a href="mailto:xababy#Gmail.com" target="_blank">投稿学网</a></div>
+<div class="f2"><font style="FONT-SIZE: 8pt" face="Verdana">学网·<span lang="en-us">2003</span>-2011版权所有</font> <br><font style="FONT-SIZE: 8pt" face="Verdana">&#169; CopyRight 2004-2008 <b><a title="学网,教程网站,教程,电脑学习,软件教程各方面免费教程" href="http://www.xue5.com/" target="_blank">WwW.Xue5.CoM</a></b>.Inc All Rights Reserved</font><br><font style="FONT-SIZE: 8pt" face="Verdana"><span lang="en-us">合作、联系E-Mail：cainiaoo.cn#live.cn ＱＱ：1103290，329700200</span></font><br>
+<script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/DIVit_QQ.js"></script><script type="text/javascript">/*xue5右下角悬浮250*200，5.16改为对联测试*/ var cpro_id = 'u167980';</script><script src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/f.js" type="text/javascript"></script><script type="text/javascript" charset="utf-8" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/ecom(17)"></script>
+<script type="text/javascript">
+    (function(win,doc){
+        var s = doc.createElement("script"), h = doc.getElementsByTagName("head")[0];
+        if (!win.alimamatk_show) {
+            s.charset = "gbk";
+            s.async = true;
+            s.src = "http://a.alimama.cn/tkapi.js";
+            h.insertBefore(s, h.firstChild);
+        };
+        var o = {
+            pid: "mm_10165657_234131_13380554",/*推广单元ID，用于区分不同的推广渠道*/
+            appkey: "",/*通过TOP平台申请的appkey，设置后引导成交会关联appkey*/
+            unid: ""/*自定义统计字段*/
+        };
+        win.alimamatk_onload = win.alimamatk_onload || [];
+        win.alimamatk_onload.push(o);
+    })(window,document);
+</script>
+
+<font style="FONT-SIZE: 8pt" face="Verdana">本网内容来自互联网转载分享,如侵犯您的版权,我们深感抱歉,请第一时间联系QQ:1103290，我们立刻删除</font><br><a href="http://www.itlaw.com.cn/" title="法律顾问" target="_blank">本站法律顾问: ITlaw-庄毅雄</a> 
+<script src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/h.js" type="text/javascript"></script><object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" id="HolmesIcon1387339833" width="67" height="18"><param name="movie" value="http://eiv.baidu.com/hmt/icon/31.swf"><param name="flashvars" value="s=http://tongji.baidu.com/hm-web/welcome/ico?s=cadee88ca0c7c9650dc4380fd51a742a"><param name="allowscriptaccess" value="always"><embed type="application/x-shockwave-flash" name="HolmesIcon1387339833" width="67" height="18" src="http://eiv.baidu.com/hmt/icon/31.swf" flashvars="s=http://tongji.baidu.com/hm-web/welcome/ico?s=cadee88ca0c7c9650dc4380fd51a742a" allowscriptaccess="always"></object><br>学网_致力于电脑使用知识、软件操作知识以及互联网应用知识的普及<br><b>陕ICP备05000834号</b><br>
+<script language="javascript" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/18.js"></script></div>
+</div><div id="cproIframe10holder" style="padding: 0px; display: block; visibility: visible; border: none; background-image: none; float: none; overflow: hidden; position: fixed; z-index: 2147483647; width: 306px; height: 276px; line-height: 276px; right: 10px; bottom: 0px; background-position: initial initial; background-repeat: initial initial;"><div style="padding: 0px; display: block; visibility: visible; border: none; background-image: none; float: none; overflow: hidden; width: 100%; height: 100%; background-position: initial initial; background-repeat: initial initial;"><div style="display:none">-</div> <iframe id="cproIframe10" src="./Mp4v2实现h264+aac打包成Mp4视频文件_移动开发_电脑学网(Xue5.CoM)_files/uijs(7).htm" width="306" height="276" align="center,center" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div><div style="padding: 0px; display: block; visibility: visible; border: none; background-color: rgb(255, 255, 255); float: none; overflow: hidden; height: 20px; line-height: 20px; position: absolute; text-decoration: none; color: rgb(51, 51, 51); text-align: left; font-size: 14px; font-family: simsun, arial; cursor: pointer; opacity: 0; width: 60px; right: 0px; top: 0px; background-position: initial initial; background-repeat: initial initial;">&nbsp;</div></div>
+
+
+<div class="hm-t-container" id="hm_t_2982" style="width: 0px; border-width: 0px;"><div class="hm-t-header" style="background-position: 10px 7px;">
+猜您喜欢
+</div>
+<div class="hm-t-main" style="display: none;">
+<ul class="hm-t-list hm-t-list-txt">
+<li class="hm-t-item hm-t-item-txt">
+<div class="hm-t-txt-wrapper">
+<a class="hm-t-txt" href="http://www.xue5.com/Mobile/Mobile/693617.html" target="_blank" title="h264检测是I帧还是P帧，解决录像第一帧有马赛克问题" data-pos="0">h264检测是I帧还是P帧，解决录像第一帧有马赛克问题</a>
+</div>
+</li>
+<li class="hm-t-item hm-t-item-txt">
+<div class="hm-t-txt-wrapper">
+<a class="hm-t-txt" href="http://www.xue5.com/Developer/CSharp/748475.html" target="_blank" title="C#实现登录窗口(不用隐藏)- snowfly123_C#" data-pos="1">C#实现登录窗口(不用隐藏)- snowfly123_C#</a>
+</div>
+</li>
+<li class="hm-t-item hm-t-item-txt">
+<div class="hm-t-txt-wrapper">
+<a class="hm-t-txt" href="http://www.xue5.com/Mobile/Mobile/630069.html" target="_blank" title="【Android代码片段之九】监听Android系统Log" data-pos="2">【Android代码片段之九】监听Android系统Log</a>
+</div>
+</li>
+<li class="hm-t-item hm-t-item-txt">
+<div class="hm-t-txt-wrapper">
+<a class="hm-t-txt" href="http://www.xue5.com/Mobile/Android/712872.html" target="_blank" title="android 写log到文件" data-pos="3">android 写log到文件</a>
+</div>
+</li>
+<li class="hm-t-item hm-t-item-txt">
+<div class="hm-t-txt-wrapper">
+<a class="hm-t-txt" href="http://www.xue5.com/Developer/Software/617773.html" target="_blank" title="计算PE文件的校验值checksum" data-pos="4">计算PE文件的校验值checksum</a>
+</div>
+</li>
+</ul>
+<div class="hm-t-footer"><a href="http://tuijian.baidu.com/" target="_blank">百度推荐</a></div>
+</div></div></body></html>

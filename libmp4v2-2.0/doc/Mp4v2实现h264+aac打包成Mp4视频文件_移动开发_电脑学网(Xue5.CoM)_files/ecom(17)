@@ -1,0 +1,1 @@
+BAIDU_CPRO_SETJSONADSLOTFLOAT({ "u167980" : { "_html" : "cpro_client=xue5_cpr|cpro_float=3|cpro_template=float_xuanfuwin_300_250|cpro_contw=1024|cpro_h=250|cpro_w=300|cpro_position=1|cpro_follow=1|cpro_close=1|cpro_clientw=0|cpro_cad=1", "_dai" : 10 }  }); 
